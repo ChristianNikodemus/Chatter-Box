@@ -8,7 +8,6 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-//import { color } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 
 export default class Chat extends React.Component {
   constructor(props) {
