@@ -60,7 +60,10 @@ export default class Start extends React.Component {
               <View style={styles.bgSamplesWrapper}>
                 <TouchableOpacity
                   style={[styles.bgColorButton, styles.bgColor1]}
-                  onPress={() => this.changeBgColor(this.colors.black)}
+                  onPress={() => {
+                    this.changeBgColor(this.colors.black);
+                    //console.log(this.state.color);
+                  }}
                 ></TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.bgColorButton, styles.bgColor2]}
@@ -120,6 +123,7 @@ const styles = StyleSheet.create({
     width: "88%",
     marginBottom: "12%",
     padding: "6%",
+    borderRadius: 5,
   },
   textBoxWrapper: {
     flexDirection: "row",

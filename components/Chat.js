@@ -14,22 +14,19 @@ export default class Chat extends React.Component {
     super(props);
   }
 
-  render() {
+  componentDidMount() {
     let name = this.props.route.params.name;
 
-    let bgColor = this.props.route.params.bgColor;
+    let color = this.props.route.params.color;
 
     this.props.navigation.setOptions({ title: name });
+  }
 
+  //componentWillUnmount() {}
+
+  render() {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: bgColor ? bgColor : "#fff",
-        }}
-      >
+      <View style={styles.container}>
         <Text>Hello, {name}!</Text>
       </View>
     );
@@ -42,5 +39,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: color ? color : "#fff",
   },
 });
