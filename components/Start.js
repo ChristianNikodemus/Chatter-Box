@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: 150,
     fontSize: 45,
     fontWeight: "bold",
+    //fontFamily: "Poppins-Bold",
     color: "#FFFFFF",
   },
   box1: {

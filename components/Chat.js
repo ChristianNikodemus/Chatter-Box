@@ -9,6 +9,8 @@ import {
   ScrollView,
 } from "react-native";
 
+let color = "teal";
+
 export default class Chat extends React.Component {
   constructor(props) {
     super(props);
@@ -22,12 +24,13 @@ export default class Chat extends React.Component {
     this.props.navigation.setOptions({ title: name });
   }
 
-  //componentWillUnmount() {}
-
   render() {
+    // store the prop values that are passed
+    const { name, color } = this.props.route.params;
+
     return (
       <View style={styles.container}>
-        <Text>Hello, {name}!</Text>
+        <Text>Hello, {name}! welcome to Chatter Box!</Text>
       </View>
     );
   }
