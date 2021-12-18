@@ -27,11 +27,12 @@ export default class Start extends React.Component {
     };
   }
 
+  // This changes the state to the new color submitted by onPress
   changeBgColor = (newColor) => {
     this.setState({ color: newColor });
   };
 
-  // background color choices
+  // background color choices and buttons
   colors = {
     black: "#090C08",
     purple: "#474056",
@@ -42,8 +43,11 @@ export default class Start extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        {/* Background image and header text */}
         <ImageBackground source={bgImg} resizeMode="cover" style={styles.image}>
           <Text style={styles.header}>Chatter Box</Text>
+
+          {/* Box that outlines the user input and color selection */}
           <View style={styles.box1}>
             <View style={styles.textBoxWrapper}>
               <Image source={icon} fadeDuration={0} style={styles.icon} />
@@ -58,6 +62,7 @@ export default class Start extends React.Component {
             <View style={styles.bgColor}>
               <Text style={styles.bgText}>Choose Background Color:</Text>
               <View style={styles.bgSamplesWrapper}>
+                {/* This loop cycles through the colors array and applies the the same styles for all */}
                 {Object.values(this.colors).map((color) => (
                   <TouchableOpacity
                     key={color}
@@ -81,6 +86,7 @@ export default class Start extends React.Component {
               // title="Start Chatting"
               onPress={() =>
                 this.props.navigation.navigate("Chat", {
+                  //This passes the state through the props to the Chat.js page
                   name: this.state.name,
                   color: this.state.color || "#fff",
                 })

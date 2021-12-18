@@ -19,6 +19,7 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
+    // passes the props from the state of Start.js
     let name = this.props.route.params.name;
 
     this.props.navigation.setOptions({ title: name });
@@ -39,6 +40,7 @@ export default class Chat extends React.Component {
     });
   }
 
+  // adds the users input to the messages state
   onSend(messages = []) {
     this.setState((previousState) => ({
       messages: GiftedChat.append(previousState.messages, messages),
