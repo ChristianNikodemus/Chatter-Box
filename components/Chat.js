@@ -10,8 +10,6 @@ import {
 } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 
-let color = "teal";
-
 export default class Chat extends React.Component {
   constructor(props) {
     super(props);
@@ -22,8 +20,6 @@ export default class Chat extends React.Component {
 
   componentDidMount() {
     let name = this.props.route.params.name;
-
-    let color = this.props.route.params.color;
 
     this.props.navigation.setOptions({ title: name });
 
@@ -54,8 +50,9 @@ export default class Chat extends React.Component {
     const { name, color } = this.props.route.params;
 
     return (
-      <View style={styles.container}>
-        <Text>Hello, {name}! welcome to Chatter Box!</Text>
+      <View style={{ ...styles.container, backgroundColor: color }}>
+        {/* <Text>Hello, {name}! welcome to Chatter Box!</Text> */}
+
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
@@ -74,6 +71,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: color ? color : "#fff",
+    //backgroundColor: color ? color : "#fff",
   },
 });

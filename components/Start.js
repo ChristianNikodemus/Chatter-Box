@@ -58,22 +58,21 @@ export default class Start extends React.Component {
             <View style={styles.bgColor}>
               <Text style={styles.bgText}>Choose Background Color:</Text>
               <View style={styles.bgSamplesWrapper}>
-                <TouchableOpacity
-                  style={[styles.bgColorButton, styles.bgColor1]}
-                  onPress={() => {
-                    this.changeBgColor(this.colors.black);
-                    //console.log(this.state.color);
-                  }}
-                ></TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.bgColorButton, styles.bgColor2]}
-                ></TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.bgColorButton, styles.bgColor3]}
-                ></TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.bgColorButton, styles.bgColor4]}
-                ></TouchableOpacity>
+                {Object.values(this.colors).map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={{
+                      ...styles.bgColorButton,
+                      backgroundColor: color,
+                      borderWidth: 3,
+                      borderColor:
+                        this.state.color === color ? "red" : "transparent",
+                    }}
+                    onPress={() => {
+                      this.changeBgColor(color);
+                    }}
+                  ></TouchableOpacity>
+                ))}
               </View>
             </View>
 
@@ -83,6 +82,7 @@ export default class Start extends React.Component {
               onPress={() =>
                 this.props.navigation.navigate("Chat", {
                   name: this.state.name,
+                  color: this.state.color || "#fff",
                 })
               }
             >
@@ -172,18 +172,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     marginTop: 10,
-  },
-  bgColor1: {
-    backgroundColor: "#090C08",
-  },
-  bgColor2: {
-    backgroundColor: "#474056",
-  },
-  bgColor3: {
-    backgroundColor: "#8A95A5",
-  },
-  bgColor4: {
-    backgroundColor: "#B9C6AE",
   },
   button: {
     alignItems: "center",
