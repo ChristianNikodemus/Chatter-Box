@@ -50,9 +50,8 @@ export default class Chat extends React.Component {
     const { name, color } = this.props.route.params;
 
     return (
-      <View style={{ ...styles.container, backgroundColor: color }}>
-        {/* <Text>Hello, {name}! welcome to Chatter Box!</Text> */}
-
+      <View style={{ flex: 1, backgroundColor: color }}>
+        <Text>Hey {name}! </Text>
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
@@ -65,12 +64,4 @@ export default class Chat extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    //backgroundColor: color ? color : "#fff",
-  },
-});
+const styles = StyleSheet.create({});
