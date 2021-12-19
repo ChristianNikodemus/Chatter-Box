@@ -7,8 +7,10 @@ import {
   Button,
   Alert,
   ScrollView,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 export default class Chat extends React.Component {
   constructor(props) {
@@ -36,6 +38,12 @@ export default class Chat extends React.Component {
             avatar: "https://placeimg.com/140/140/any",
           },
         },
+        {
+          _id: 2,
+          text: "This is a system message",
+          createdAt: new Date(),
+          system: true,
+        },
       ],
     });
   }
@@ -47,20 +55,48 @@ export default class Chat extends React.Component {
     }));
   }
 
+  // Customizes the color of the text bubbles
+  renderBubble(props) {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: "#D4F1F4",
+          },
+          left: {
+            backgroundColor: "#fff",
+          },
+        }}
+        textStyle={{
+          right: {
+            color: "#000",
+          },
+          left: {
+            color: "#000",
+          },
+        }}
+      />
+    );
+  }
+
   render() {
     // store the prop values that are passed
     const { name, color } = this.props.route.params;
 
     return (
       <View style={{ flex: 1, backgroundColor: color }}>
-        <Text>Hey {name}! </Text>
         <GiftedChat
+          renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
             _id: 1,
           }}
         />
+        {Platform.OS === "android" ? (
+          <KeyboardAvoidingView behavior="height" />
+        ) : null}
       </View>
     );
   }
