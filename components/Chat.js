@@ -9,8 +9,34 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
-import { GiftedChat, Bubble } from "react-native-gifted-chat";
+import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
+import { IconButton } from "react-native-paper";
+
+// Color Palette used
+const bubbleBgRight = "#1f5976";
+const iconColor = "#5aabd4";
+
+// Customizes the send icon
+function renderSend(props) {
+  return (
+    <Send {...props}>
+      <View style={styles.sendingContainer}>
+        <IconButton icon="send-circle" size={40} color={iconColor} />
+      </View>
+    </Send>
+  );
+}
+
+// Loading spinner
+function renderLoading() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#fff" />
+    </View>
+  );
+}
 
 export default class Chat extends React.Component {
   constructor(props) {
@@ -62,20 +88,19 @@ export default class Chat extends React.Component {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: "#D4F1F4",
+            backgroundColor: bubbleBgRight,
           },
           left: {
             backgroundColor: "#fff",
           },
         }}
-        textStyle={{
-          right: {
-            color: "#000",
-          },
-          left: {
-            color: "#000",
-          },
-        }}
+        textStyle={
+          {
+            // right: {
+            //   color: "#000",
+            // },
+          }
+        }
       />
     );
   }
@@ -93,6 +118,10 @@ export default class Chat extends React.Component {
           user={{
             _id: 1,
           }}
+          //showUserAvatar
+          alwaysShowSend
+          renderSend={renderSend}
+          renderLoading={renderLoading}
         />
         {Platform.OS === "android" ? (
           <KeyboardAvoidingView behavior="height" />
@@ -102,4 +131,15 @@ export default class Chat extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  sendingContainer: {
+    marginTop: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
