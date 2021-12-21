@@ -44,14 +44,34 @@ export default class Start extends React.Component {
     return (
       <View style={styles.container}>
         {/* Background image and header text */}
-        <ImageBackground source={bgImg} resizeMode="cover" style={styles.image}>
-          <Text style={styles.header}>Chatter Box</Text>
+        <ImageBackground
+          accessible={true}
+          accessibilityLabel="Background image"
+          accessibilityHint="Image of people chatting."
+          accessibilityRole="image"
+          source={bgImg}
+          resizeMode="cover"
+          style={styles.image}
+        >
+          <Text
+            accessible={true}
+            accessibilityLabel="Chatter box header"
+            //accessibilityHint=""
+            accessibilityRole="text"
+            style={styles.header}
+          >
+            Chatter Box
+          </Text>
 
           {/* Box that outlines the user input and color selection */}
           <View style={styles.box1}>
             <View style={styles.textBoxWrapper}>
               <Image source={icon} fadeDuration={0} style={styles.icon} />
               <TextInput
+                accessible={true}
+                accessibilityLabel="Name text-input form"
+                accessibilityHint="Enter your name that will be used in the chat page."
+                accessibilityRole="adjustable"
                 style={styles.textInput}
                 onChangeText={(name) => this.setState({ name })}
                 value={this.state.name}
@@ -65,6 +85,10 @@ export default class Start extends React.Component {
                 {/* This loop cycles through the colors array and applies the the same styles for all */}
                 {Object.values(this.colors).map((color) => (
                   <TouchableOpacity
+                    accessible={true}
+                    accessibilityLabel="Choose background color"
+                    accessibilityHint="Let's you choose the background color for the chat page."
+                    accessibilityRole="button"
                     key={color}
                     style={{
                       ...styles.bgColorButton,
@@ -82,6 +106,10 @@ export default class Start extends React.Component {
             </View>
 
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="Start Chatting Button"
+              accessibilityHint="Button to click and enter the chat room."
+              accessibilityRole="button"
               style={styles.button}
               // title="Start Chatting"
               onPress={() =>
