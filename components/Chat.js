@@ -14,6 +14,25 @@ import {
 import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
+// ---------------- Firebase ----------------
+
+// Import Firestore
+const firebase = require("firebase");
+require("firebase/firestore");
+
+// Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
+
+// ---------------- Firebase ----------------
+
 // Color Palette used
 const bubbleBgRight = "#1f5976";
 const iconColor = "#5aabd4";
@@ -44,9 +63,46 @@ export default class Chat extends React.Component {
     this.state = {
       messages: [],
     };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyC87PL6QZzNv_cDEPN1lPMIFNmymvOfiNg",
+        authDomain: "chatter-box-5b35a.firebaseapp.com",
+        projectId: "chatter-box-5b35a",
+        storageBucket: "chatter-box-5b35a.appspot.com",
+        messagingSenderId: "248903869601",
+        appId: "1:248903869601:web:567a751273290f98b6bce0",
+        measurementId: "G-6P9485JZ12",
+      });
+    }
+
+    this.referenceChatMessages = firebase.firestore().collection("messages");
   }
 
   componentDidMount() {
+    // Function that updates messages to firestore
+    onCollectionUpdate = (querySnapshot) => {
+      const messages = [];
+      // go through each document
+      querySnapshot.forEach((doc) => {
+        // get the QueryDocumentSnapshot's data
+        let data = doc.data();
+        messages.push({
+          _id: data._id,
+          text: data.text,
+          createdAt: data.createdAt.toDate(),
+          user: data.user,
+        });
+      });
+    };
+
+    // recieves updates about firebase collection
+    this.referenceChatMessages = firebase.firestore().collection("messages");
+
+    this.unsubscribe = this.referenceChatMessages.onSnapshot(
+      this.onCollectionUpdate
+    );
+
     // passes the props from the state of Start.js
     let name = this.props.route.params.name;
 
@@ -66,7 +122,7 @@ export default class Chat extends React.Component {
         },
         {
           _id: 2,
-          text: "This is a system message",
+          text: `Welcome to Chatter Box, ${name}!`,
           createdAt: new Date(),
           system: true,
         },
@@ -74,11 +130,31 @@ export default class Chat extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  // Adds message to firestore collection
+  addMessages() {
+    const message = this.state.messages[0];
+    this.referenceChatMessages.add({
+      _id: message._id,
+      text: message.text || "",
+      createdAt: message.createdAt,
+      user: message.user,
+    });
+  }
+
   // adds the users input to the messages state
   onSend(messages = []) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
+    this.setState(
+      (previousState) => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }),
+      () => {
+        this.addMessages();
+      }
+    );
   }
 
   // Customizes the color of the text bubbles
