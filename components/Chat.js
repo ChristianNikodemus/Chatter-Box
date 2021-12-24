@@ -62,6 +62,7 @@ export default class Chat extends React.Component {
     super(props);
     this.state = {
       messages: [],
+      uid: 0,
     };
 
     if (!firebase.apps.length) {
@@ -80,6 +81,27 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
+    // Signs in a new user
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      this.setState({
+        uid: user.uid,
+        messages: [],
+      });
+
+      // Referencing messages of current user
+      this.referenceChatUser = firebase
+        .firestore()
+        .collection("messages")
+        .where("uid", "==", this.state.uid);
+
+      this.unsubscribe = this.referenceChatMessages
+        .orderBy("createdAt", "desc")
+        .onSnapshot(this.onCollectionUpdate);
+    });
+
     // Function that updates messages to firestore
     onCollectionUpdate = (querySnapshot) => {
       const messages = [];
@@ -99,6 +121,10 @@ export default class Chat extends React.Component {
     // recieves updates about firebase collection
     this.referenceChatMessages = firebase.firestore().collection("messages");
 
+    // listen for collection changes for current user
+    // this.unsubscribeChatUser = this.referenceChatUser.onSnapshot(
+    //   this.onCollectionUpdate
+    // );
     this.unsubscribe = this.referenceChatMessages.onSnapshot(
       this.onCollectionUpdate
     );
@@ -142,6 +168,7 @@ export default class Chat extends React.Component {
       text: message.text || "",
       createdAt: message.createdAt,
       user: message.user,
+      uid: this.state.uid,
     });
   }
 
