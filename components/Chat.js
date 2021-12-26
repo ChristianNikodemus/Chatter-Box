@@ -14,7 +14,7 @@ import {
 import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
-// ---------------- Firebase ----------------
+// ---------------- Importing Firebase ----------------
 
 // Import Firestore
 const firebase = require("firebase");
@@ -31,7 +31,7 @@ require("firebase/firestore");
 // const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
-// ---------------- Firebase ----------------
+// ---------------- Importing Firebase ----------------
 
 // Color Palette used
 const bubbleBgRight = "#1f5976";
@@ -85,49 +85,26 @@ export default class Chat extends React.Component {
     this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
         firebase.auth().signInAnonymously();
-      }
-      this.setState({
-        uid: user.uid,
-        messages: [],
-      });
-
-      // Referencing messages of current user
-      this.referenceChatUser = firebase
-        .firestore()
-        .collection("messages")
-        .where("uid", "==", this.state.uid);
-
-      this.unsubscribe = this.referenceChatMessages
-        .orderBy("createdAt", "desc")
-        .onSnapshot(this.onCollectionUpdate);
-    });
-
-    // Function that updates messages to firestore
-    onCollectionUpdate = (querySnapshot) => {
-      const messages = [];
-      // go through each document
-      querySnapshot.forEach((doc) => {
-        // get the QueryDocumentSnapshot's data
-        let data = doc.data();
-        messages.push({
-          _id: data._id,
-          text: data.text,
-          createdAt: data.createdAt.toDate(),
-          user: data.user,
+      } else {
+        this.setState({
+          uid: user.uid,
+          //messages: [],
         });
-      });
-    };
+
+        // Referencing messages of current user
+        this.referenceChatUser = firebase
+          .firestore()
+          .collection("messages")
+          .where("uid", "==", this.state.uid);
+
+        this.unsubscribe = this.referenceChatMessages
+          .orderBy("createdAt", "desc")
+          .onSnapshot(this.onCollectionUpdate.bind(this));
+      }
+    });
 
     // recieves updates about firebase collection
     this.referenceChatMessages = firebase.firestore().collection("messages");
-
-    // listen for collection changes for current user
-    // this.unsubscribeChatUser = this.referenceChatUser.onSnapshot(
-    //   this.onCollectionUpdate
-    // );
-    this.unsubscribe = this.referenceChatMessages.onSnapshot(
-      this.onCollectionUpdate
-    );
 
     // passes the props from the state of Start.js
     let name = this.props.route.params.name;
@@ -158,6 +135,24 @@ export default class Chat extends React.Component {
 
   componentWillUnmount() {
     this.unsubscribe();
+    this.authUnsubscribe();
+  }
+
+  // Function that updates messages to firestore
+  onCollectionUpdate(querySnapshot) {
+    const messages = [];
+    // go through each document
+    querySnapshot.forEach((doc) => {
+      // get the QueryDocumentSnapshot's data
+      let data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        createdAt: data.createdAt.toDate(),
+        user: data.user,
+      });
+    });
+    this.setState({ messages });
   }
 
   // Adds message to firestore collection
@@ -167,7 +162,7 @@ export default class Chat extends React.Component {
       _id: message._id,
       text: message.text || "",
       createdAt: message.createdAt,
-      user: message.user,
+      user: { _id: this.state.uid, name: this.props.route.params.name },
       uid: this.state.uid,
     });
   }
@@ -218,10 +213,8 @@ export default class Chat extends React.Component {
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
-          user={{
-            _id: 1,
-          }}
-          //showUserAvatar
+          user={{ _id: this.state.uid }}
+          showUserAvatar
           alwaysShowSend
           renderSend={renderSend}
           renderLoading={renderLoading}
