@@ -14,6 +14,9 @@ import {
 import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
+// Import asyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 // ---------------- Importing Firebase ----------------
 
 // Import Firestore
@@ -80,6 +83,43 @@ export default class Chat extends React.Component {
     this.referenceChatMessages = firebase.firestore().collection("messages");
   }
 
+  // Stores the messages with AsyncStorage
+  async getMessages() {
+    let messages = "";
+    try {
+      messages = (await AsyncStorage.getItem("messages")) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // Saves messages to the state through AsyncStorage
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem(
+        "messages",
+        JSON.stringify(this.state.messages)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // Deletes messages from the state through AsyncStorage
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem("messages");
+      this.setState({
+        messages: [],
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   componentDidMount() {
     // Signs in a new user
     this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
@@ -90,6 +130,9 @@ export default class Chat extends React.Component {
           uid: user.uid,
           //messages: [],
         });
+
+        // Loads messages from asyncStorage
+        this.getMessages();
 
         // Referencing messages of current user
         this.referenceChatUser = firebase
@@ -103,7 +146,7 @@ export default class Chat extends React.Component {
       }
     });
 
-    // recieves updates about firebase collection
+    // Recieves updates about firebase collection
     this.referenceChatMessages = firebase.firestore().collection("messages");
 
     // passes the props from the state of Start.js
@@ -175,6 +218,7 @@ export default class Chat extends React.Component {
       }),
       () => {
         this.addMessages();
+        this.saveMessages();
       }
     );
   }
