@@ -16,6 +16,7 @@ import {
   Bubble,
   Send,
   InputToolbar,
+  Image,
 } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
@@ -23,7 +24,10 @@ import { IconButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Import NetInfo
-//import NetInfo from "@react-native-community/netinfo";
+import NetInfo from "@react-native-community/netinfo";
+
+import * as Permissions from "expo-permissions";
+import * as ImagePicker from "expo-image-picker";
 
 // ---------------- Importing Firebase ----------------
 
@@ -68,13 +72,17 @@ function renderLoading() {
   );
 }
 
+// Stores messages if sent offline
+let offlineMessages = [];
+
 export default class Chat extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       messages: [],
       uid: 0,
-      //isConnected: false,
+      isConnected: false,
+      image: null,
     };
 
     if (!firebase.apps.length) {
@@ -131,41 +139,60 @@ export default class Chat extends React.Component {
 
   componentDidMount() {
     // Checks if the user is online
-    // NetInfo.fetch().then((connection) => {
-    //   if (connection.isConnected) {
-    //     console.log("online");
-    //   } else {
-    //     console.log("offline");
-    //   }
-    // });
+    NetInfo.fetch().then((connection) => {
+      if (connection.isConnected) {
+        console.log("online");
+        this.setState({ isConnected: true });
 
-    // Signs in a new user
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        firebase.auth().signInAnonymously();
-      } else {
-        this.setState({
-          uid: user.uid,
-          //messages: [],
+        // Signs in a new user
+        this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+          if (!user) {
+            firebase.auth().signInAnonymously();
+          } else {
+            this.setState({
+              uid: user.uid,
+              //messages: [],
+            });
+
+            // Referencing messages of current user
+            this.referenceChatUser = firebase
+              .firestore()
+              .collection("messages")
+              .where("uid", "==", this.state.uid);
+
+            this.unsubscribe = this.referenceChatMessages
+              .orderBy("createdAt", "desc")
+              .onSnapshot(this.onCollectionUpdate.bind(this));
+          }
         });
 
-        // Loads messages from asyncStorage
-        this.getMessages();
-
-        // Referencing messages of current user
-        this.referenceChatUser = firebase
+        // Recieves updates about firebase collection
+        this.referenceChatMessages = firebase
           .firestore()
-          .collection("messages")
-          .where("uid", "==", this.state.uid);
-
-        this.unsubscribe = this.referenceChatMessages
-          .orderBy("createdAt", "desc")
-          .onSnapshot(this.onCollectionUpdate.bind(this));
+          .collection("messages");
+      } else {
+        console.log("offline");
       }
     });
 
-    // Recieves updates about firebase collection
-    this.referenceChatMessages = firebase.firestore().collection("messages");
+    // Listens for any messages the user added while offline
+    NetInfo.addEventListener((state) => {
+      if (state.isConnected && offlineMessages.length > 0) {
+        while (offlineMessages.length !== 0) {
+          const message = offlineMessages.shift();
+          this.referenceChatMessages.add({
+            _id: message._id,
+            text: message.text || "",
+            createdAt: message.createdAt,
+            user: { _id: this.state.uid, name: this.props.route.params.name },
+            uid: this.state.uid,
+          });
+        }
+      }
+    });
+
+    // Loads messages from AsyncStorage
+    this.getMessages();
 
     // passes the props from the state of Start.js
     let name = this.props.route.params.name;
@@ -194,12 +221,11 @@ export default class Chat extends React.Component {
     });
   }
 
-  // renderInputToolbar(props) {
-  //   if (this.state.isConnected == false) {
-  //   } else {
-  //     return <InputToolbar {...props} />;
-  //   }
-  // }
+  renderInputToolbar(props) {
+    // if (this.state.isConnected) {
+    return <InputToolbar {...props} />;
+    //  }
+  }
 
   componentWillUnmount() {
     this.unsubscribe();
@@ -226,13 +252,17 @@ export default class Chat extends React.Component {
   // Adds message to firestore collection
   addMessages() {
     const message = this.state.messages[0];
-    this.referenceChatMessages.add({
-      _id: message._id,
-      text: message.text || "",
-      createdAt: message.createdAt,
-      user: { _id: this.state.uid, name: this.props.route.params.name },
-      uid: this.state.uid,
-    });
+    if (this.state.isConnected) {
+      this.referenceChatMessages.add({
+        _id: message._id,
+        text: message.text || "",
+        createdAt: message.createdAt,
+        user: { _id: this.state.uid, name: this.props.route.params.name },
+        uid: this.state.uid,
+      });
+    } else {
+      offlineMessages.push(message);
+    }
   }
 
   // adds the users input to the messages state
@@ -272,6 +302,42 @@ export default class Chat extends React.Component {
     );
   }
 
+  // Let's the user pick an image from their camera role
+  pickImage = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+    if (status === "granted") {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "Images",
+      }).catch((error) => console.log(error));
+
+      if (!result.cancelled) {
+        this.setState({
+          image: result,
+        });
+      }
+    }
+  };
+
+  takePhoto = async () => {
+    const { status } = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL,
+      Permissions.CAMERA
+    );
+
+    if (status === "granted") {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: "Images",
+      }).catch((error) => console.log(error));
+
+      if (!result.cancelled) {
+        this.setState({
+          image: result,
+        });
+      }
+    }
+  };
+
   render() {
     // store the prop values that are passed
     const { name, color } = this.props.route.params;
@@ -281,7 +347,7 @@ export default class Chat extends React.Component {
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
-          //renderInputToolbar={this.renderInputToolbar}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
           onSend={(messages) => this.onSend(messages)}
           user={{ _id: this.state.uid }}
           showUserAvatar
@@ -292,6 +358,17 @@ export default class Chat extends React.Component {
         {Platform.OS === "android" ? (
           <KeyboardAvoidingView behavior="height" />
         ) : null}
+        {/* <Button
+          title="Pick an image from the library"
+          onPress={this.pickImage}
+        />
+        <Button title="Take a photo" onPress={this.takePhoto} />
+        {this.state.image && (
+          <Image
+            source={{ uri: this.state.image.uri }}
+            style={{ width: 200, height: 200 }}
+          />
+        )} */}
       </View>
     );
   }
