@@ -11,11 +11,19 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
 } from "react-native";
-import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
+import {
+  GiftedChat,
+  Bubble,
+  Send,
+  InputToolbar,
+} from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
 // Import asyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Import NetInfo
+//import NetInfo from "@react-native-community/netinfo";
 
 // ---------------- Importing Firebase ----------------
 
@@ -66,6 +74,7 @@ export default class Chat extends React.Component {
     this.state = {
       messages: [],
       uid: 0,
+      //isConnected: false,
     };
 
     if (!firebase.apps.length) {
@@ -121,6 +130,15 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
+    // Checks if the user is online
+    // NetInfo.fetch().then((connection) => {
+    //   if (connection.isConnected) {
+    //     console.log("online");
+    //   } else {
+    //     console.log("offline");
+    //   }
+    // });
+
     // Signs in a new user
     this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
@@ -175,6 +193,13 @@ export default class Chat extends React.Component {
       ],
     });
   }
+
+  // renderInputToolbar(props) {
+  //   if (this.state.isConnected == false) {
+  //   } else {
+  //     return <InputToolbar {...props} />;
+  //   }
+  // }
 
   componentWillUnmount() {
     this.unsubscribe();
@@ -256,6 +281,7 @@ export default class Chat extends React.Component {
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
+          //renderInputToolbar={this.renderInputToolbar}
           onSend={(messages) => this.onSend(messages)}
           user={{ _id: this.state.uid }}
           showUserAvatar
