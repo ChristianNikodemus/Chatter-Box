@@ -222,9 +222,9 @@ export default class Chat extends React.Component {
   }
 
   renderInputToolbar(props) {
-    // if (this.state.isConnected) {
-    return <InputToolbar {...props} />;
-    //  }
+    if (this.state.isConnected) {
+      return <InputToolbar {...props} />;
+    }
   }
 
   componentWillUnmount() {
