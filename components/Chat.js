@@ -20,6 +20,12 @@ import {
 } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
+// Import Mapview for location of user
+import MapView from "react-native-maps";
+
+// Import CustomActions button component
+import CustomActions from "./CustomActions";
+
 // Import asyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -83,6 +89,7 @@ export default class Chat extends React.Component {
       uid: 0,
       isConnected: false,
       image: null,
+      location: null,
     };
 
     if (!firebase.apps.length) {
@@ -186,6 +193,7 @@ export default class Chat extends React.Component {
             createdAt: message.createdAt,
             user: { _id: this.state.uid, name: this.props.route.params.name },
             uid: this.state.uid,
+            location: message.location || null,
           });
         }
       }
@@ -244,6 +252,7 @@ export default class Chat extends React.Component {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         user: data.user,
+        location: data.location || null,
       });
     });
     this.setState({ messages });
@@ -259,6 +268,7 @@ export default class Chat extends React.Component {
         createdAt: message.createdAt,
         user: { _id: this.state.uid, name: this.props.route.params.name },
         uid: this.state.uid,
+        location: message.location || null,
       });
     } else {
       offlineMessages.push(message);
@@ -302,41 +312,29 @@ export default class Chat extends React.Component {
     );
   }
 
-  // Let's the user pick an image from their camera role
-  pickImage = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
-    if (status === "granted") {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "Images",
-      }).catch((error) => console.log(error));
-
-      if (!result.cancelled) {
-        this.setState({
-          image: result,
-        });
-      }
-    }
+  // Renders the action button
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
   };
 
-  takePhoto = async () => {
-    const { status } = await Permissions.askAsync(
-      Permissions.CAMERA_ROLL,
-      Permissions.CAMERA
-    );
-
-    if (status === "granted") {
-      let result = await ImagePicker.launchCameraAsync({
-        mediaTypes: "Images",
-      }).catch((error) => console.log(error));
-
-      if (!result.cancelled) {
-        this.setState({
-          image: result,
-        });
-      }
+  // Renders the map location of a user
+  renderCustomView(props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 250, height: 200, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
     }
-  };
+    return null;
+  }
 
   render() {
     // store the prop values that are passed
@@ -354,21 +352,12 @@ export default class Chat extends React.Component {
           alwaysShowSend
           renderSend={renderSend}
           renderLoading={renderLoading}
+          renderActions={this.renderCustomActions}
+          renderCustomView={this.renderCustomView}
         />
         {Platform.OS === "android" ? (
           <KeyboardAvoidingView behavior="height" />
         ) : null}
-        {/* <Button
-          title="Pick an image from the library"
-          onPress={this.pickImage}
-        />
-        <Button title="Take a photo" onPress={this.takePhoto} />
-        {this.state.image && (
-          <Image
-            source={{ uri: this.state.image.uri }}
-            style={{ width: 200, height: 200 }}
-          />
-        )} */}
       </View>
     );
   }
