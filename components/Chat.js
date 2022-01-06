@@ -10,13 +10,14 @@ import {
   Platform,
   KeyboardAvoidingView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import {
   GiftedChat,
   Bubble,
   Send,
   InputToolbar,
-  Image,
+  //Image,
 } from "react-native-gifted-chat";
 import { IconButton } from "react-native-paper";
 
@@ -193,6 +194,7 @@ export default class Chat extends React.Component {
             createdAt: message.createdAt,
             user: { _id: this.state.uid, name: this.props.route.params.name },
             uid: this.state.uid,
+            image: message.image || null,
             location: message.location || null,
           });
         }
@@ -252,6 +254,7 @@ export default class Chat extends React.Component {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         user: data.user,
+        image: data.image || null,
         location: data.location || null,
       });
     });
@@ -268,6 +271,7 @@ export default class Chat extends React.Component {
         createdAt: message.createdAt,
         user: { _id: this.state.uid, name: this.props.route.params.name },
         uid: this.state.uid,
+        image: message.image || null,
         location: message.location || null,
       });
     } else {
@@ -296,6 +300,7 @@ export default class Chat extends React.Component {
         wrapperStyle={{
           right: {
             backgroundColor: bubbleBgRight,
+            color: "#fff",
           },
           left: {
             backgroundColor: "#fff",
@@ -330,6 +335,13 @@ export default class Chat extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
+        />
+      );
+    }
+    if (currentMessage.image) {
+      return (
+        <Image
+          style={{ width: 250, height: 200, borderRadius: 13, margin: 3 }}
         />
       );
     }
