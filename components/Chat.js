@@ -338,13 +338,6 @@ export default class Chat extends React.Component {
         />
       );
     }
-    if (currentMessage.image) {
-      return (
-        <Image
-          style={{ width: 250, height: 200, borderRadius: 13, margin: 3 }}
-        />
-      );
-    }
     return null;
   }
 

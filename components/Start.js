@@ -10,6 +10,7 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import { block } from "react-native-reanimated";
 //import { TouchableOpacity } from "react-native-web";
@@ -17,6 +18,9 @@ import { block } from "react-native-reanimated";
 //Import images
 import bgImg from "../assets/bg-img.png";
 import icon from "../assets/account-icon.png";
+
+// color of color button border
+const colorBorder = "#F58335";
 
 export default class Start extends React.Component {
   constructor(props) {
@@ -64,7 +68,10 @@ export default class Start extends React.Component {
           </Text>
 
           {/* Box that outlines the user input and color selection */}
-          <View style={styles.box1}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.box1}
+          >
             <View style={styles.textBoxWrapper}>
               <Image source={icon} fadeDuration={0} style={styles.icon} />
               <TextInput
@@ -95,7 +102,9 @@ export default class Start extends React.Component {
                       backgroundColor: color,
                       borderWidth: 3,
                       borderColor:
-                        this.state.color === color ? "red" : "transparent",
+                        this.state.color === color
+                          ? colorBorder
+                          : "transparent",
                     }}
                     onPress={() => {
                       this.changeBgColor(color);
@@ -122,7 +131,7 @@ export default class Start extends React.Component {
             >
               <Text style={styles.buttonText}>Start Chatting</Text>
             </TouchableOpacity>
-          </View>
+          </KeyboardAvoidingView>
         </ImageBackground>
       </View>
     );
@@ -145,17 +154,19 @@ const styles = StyleSheet.create({
   header: {
     textAlign: "center",
     marginTop: 100,
-    marginBottom: 150,
+    marginBottom: 100,
     fontSize: 45,
     fontWeight: "bold",
     //fontFamily: "Poppins-Bold",
     color: "#FFFFFF",
+    flexGrow: 1,
   },
   box1: {
     backgroundColor: "white",
-    //flex: 1,
     //justifyContent: "flex-end",
     width: "88%",
+    marginLeft: 48,
+    marginRight: 48,
     marginBottom: "12%",
     padding: "6%",
     borderRadius: 5,
@@ -217,6 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     height: 50,
     justifyContent: "center",
+    marginBottom: 24,
   },
   buttonText: {
     fontSize: 16,
