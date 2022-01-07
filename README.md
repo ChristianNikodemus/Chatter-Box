@@ -25,7 +25,7 @@ To build a chat app for mobile devices using React Native. The app will provide 
 - Written in React Native.
 - Developed using Expo.
 - Styled according to a given screen design.
-- Chat conversations are stored in Google Firestore Database.
+- Chat conversations are stored in Google Firestore Database. (https://firebase.google.com/)
 - Authenticates users anonymously via Google Firebase authentication.
 - Chat conversations are stored locally.
 - Lets users pick and send images from the phone’s image library.
@@ -35,3 +35,25 @@ To build a chat app for mobile devices using React Native. The app will provide 
 - Location data can be sent via the chat in a map view.
 - The chat interface and functionality is created using the Gifted Chat library. (https://github.com/FaridSafi/react-native-gifted-chat)
 - The app’s codebase contains comments.
+
+## Installation Guide
+
+First ensure that Node.js is up to date on your machine for it to work successfully by entering the following command in your terminal:
+`npm install -g npm`
+
+Then, you must install Expo CLI, in terminal please enter the command:
+`npm install expo-cli --global`
+
+Then, clone the repostory to your machine:
+`https://github.com/ChristianNikodemus/Chatter-Box.git`
+
+Navigate to the repository in your terminal and enter the command:
+`npm install`
+
+Then enter:
+`expo start` or `npm start`
+
+Expo will build the app and open in your browser, there you find options to run through a simulator such as:
+
+- The app `Expo` in the Apple App Store or Google Play; or
+- Install Xcode on your machine and then navigate to `Xcode > Open Developer Tool > Simulator`
