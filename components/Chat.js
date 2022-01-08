@@ -262,10 +262,10 @@ export default class Chat extends React.Component {
   }
 
   // Adds message to firestore collection
-  addMessages() {
+  async addMessages() {
     const message = this.state.messages[0];
     if (this.state.isConnected) {
-      this.referenceChatMessages.add({
+      await this.referenceChatMessages.add({
         _id: message._id,
         text: message.text || "",
         createdAt: message.createdAt,
@@ -286,8 +286,8 @@ export default class Chat extends React.Component {
         messages: GiftedChat.append(previousState.messages, messages),
       }),
       () => {
-        this.addMessages();
-        this.saveMessages();
+        this.addMessages().catch(() => alert("Something went wrong."));
+        this.saveMessages().catch((e) => console.error(e));
       }
     );
   }
